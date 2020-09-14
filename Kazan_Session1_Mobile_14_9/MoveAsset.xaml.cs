@@ -45,7 +45,7 @@ namespace Kazan_Session1_Mobile_14_9
                                     where _asset.DepartmentLocationID == x.ID
                                     join y in _departmentList on x.DepartmentID equals y.ID
                                     select y.Name).FirstOrDefault();
-            lblAssetSN.Text = $"??/{_departmentLocationList.Where(x => x.ID == _asset.DepartmentLocationID).Select(x => x.DepartmentID).FirstOrDefault().ToString().PadLeft(2, '0')}/????";
+            lblAssetSN.Text = $"??/{_asset.AssetGroupID.ToString().PadLeft(2, '0')}/????";
         }
 
         private async Task LoadPickers()
@@ -95,7 +95,7 @@ namespace Kazan_Session1_Mobile_14_9
 
         private void pLocation_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (pDepartment.SelectedItem != null &&  pLocation.SelectedItem != null)
+            if (pDepartment.SelectedItem != null && pLocation.SelectedItem != null)
             {
                 CalculateNewSN();
             }
@@ -172,14 +172,26 @@ namespace Kazan_Session1_Mobile_14_9
                 if (response == "\"Completed Transfer!\"")
                 {
                     await DisplayAlert("Transfer Asset", "Completed Transfer!", "Ok");
-                    await Navigation.PopAsync();
+                    _asset.AssetSN = lblAssetSN.Text;
+                    _asset.DepartmentLocationID = getNewDepartmentLocationID;
+                    var jsonData2 = JsonConvert.SerializeObject(_asset);
+                    var responseAsset = await client.PostAsync(jsonData2, "Assets/Edit");
+                    if (responseAsset == "\"Successfully edited Asset!\"")
+                    {
+                        await DisplayAlert("Edit Asset", "Successfully edited Asset!", "Ok");
+                        await Navigation.PopAsync();
+                    }
+                    else
+                    {
+                        await DisplayAlert("Edit Asset", "An error occured while editing Asset! Please contact our administrator!", "Ok");
+                    }
                 }
                 else
                 {
                     await DisplayAlert("Transfer Asset", "Unable to transfer Asset! Please check and try again!", "Ok");
                 }
             }
-            
+
         }
 
         private async void btnCancel_Clicked(object sender, EventArgs e)
