@@ -4,12 +4,12 @@
              x:Class="Kazan_Session1_Mobile_14_9.Main">
     <ContentPage.Content>
         <StackLayout Padding="10">
-            <Grid Padding="5">
+            <Grid Padding="5" x:Name="GridSelector1">
                 <Picker x:Name="pDepartment" Title="Department" FontSize="Small" SelectedIndexChanged="pDepartment_SelectedIndexChanged"/>
                 <Picker x:Name="pAssetGroup" Title="Asset Group" Grid.Column="1" HeightRequest="60" SelectedIndexChanged="pAssetGroup_SelectedIndexChanged" FontSize="Small"/>
             </Grid>
-            <Label Text="Warranty Date Range: "/>
-            <Grid Padding="5">
+            <Label Text="Warranty Date Range: " x:Name="lblWarrantyLabel"/>
+            <Grid Padding="5" x:Name="GridSelector2">
                 <Label Text="Start: "/>
                 <DatePicker x:Name="dpStart" DateSelected="dpStart_DateSelected" Grid.Column="1" FontSize="Small" HeightRequest="60" />
                 <Label Text="End: " Grid.Column="2"/>
@@ -17,12 +17,11 @@
             </Grid>
             <SearchBar x:Name="searchBar" TextChanged="searchBar_TextChanged" Placeholder="Search"/>
             <ListView x:Name="lvAssets" HasUnevenRows="True">
-
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
-                            <StackLayout Orientation="Horizontal" Padding="5">
-                                <StackLayout Orientation="Vertical">
+                            <Grid Padding="5">
+                                <StackLayout Orientation="Vertical" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
                                     <Label Text="{Binding AssetID}" IsVisible="false"/>
                                     <Label Text="{Binding AssetName}"/>
                                     <Label Text="{Binding DepartmentName}"/>
@@ -30,15 +29,21 @@
                                     <Label Text="{Binding WarrantyDate}" IsVisible="false"/>
                                     <Label Text="{Binding AssetGroup}" IsVisible="false"/>
                                 </StackLayout>
-                                <ImageButton x:Name="btnEdit" Clicked="btnEdit_Clicked" Source="editBtn"/>
-                                <ImageButton x:Name="btnMove" Clicked="btnMove_Clicked" Source="moveBtn"/>
-                                <ImageButton x:Name="btnHistory" Clicked="btnHistory_Clicked" Source="historyBtn"/>
-                            </StackLayout>
+                                <StackLayout Orientation="Horizontal" Grid.Column="1" Padding="5">
+                                    <ImageButton x:Name="btnEdit" Clicked="btnEdit_Clicked" Source="editBtn" Aspect="AspectFill" Scale="0.5" HorizontalOptions="FillAndExpand"/>
+                                    <ImageButton x:Name="btnMove" Clicked="btnMove_Clicked" Source="moveBtn" Aspect="AspectFill" Scale="0.5" HorizontalOptions="FillAndExpand"/>
+                                    <ImageButton x:Name="btnHistory" Clicked="btnHistory_Clicked" Source="historyBtn" Aspect="AspectFill" Scale="0.5" HorizontalOptions="FillAndExpand"/>
+                                </StackLayout>
+                            </Grid>
                         </ViewCell>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-            <Label x:Name="lblNumber" Text="assets out of"/>
+            <Grid Padding="5">
+                <Label x:Name="lblNumber" Text="assets out of"/>
+                <ImageButton x:Name="btnAdd" Source="addBtn" Clicked="btnAdd_Clicked" Grid.Column="1" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand"/>
+            </Grid>
+           
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

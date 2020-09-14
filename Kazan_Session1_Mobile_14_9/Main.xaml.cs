@@ -26,7 +26,27 @@ namespace Kazan_Session1_Mobile_14_9
             base.OnAppearing();
             await LoadData();
             await LoadPickers();
+            dpStart.Date = DateTime.Parse("1/1/1980");
+        }
 
+        protected override void LayoutChildren(double x, double y, double width, double height)
+        {
+            base.LayoutChildren(x, y, width, height);
+            if (width > height)
+            {
+                GridSelector1.IsVisible = false;
+                GridSelector2.IsVisible = false;
+                searchBar.IsVisible = false;
+                lblWarrantyLabel.IsVisible = false;
+
+            }
+            else
+            {
+                GridSelector1.IsVisible = true;
+                GridSelector2.IsVisible = true;
+                searchBar.IsVisible = true;
+                lblWarrantyLabel.IsVisible = true;
+            }
         }
 
         private async Task LoadPickers()
@@ -173,20 +193,32 @@ namespace Kazan_Session1_Mobile_14_9
             }
         }
 
-        private void btnEdit_Clicked(object sender, EventArgs e)
+        private async void btnEdit_Clicked(object sender, EventArgs e)
         {
-            Console.WriteLine("Hello");
-
+            var button = (ImageButton)sender;
+            var parent = (StackLayout)button.Parent;
+            var childToTake = (StackLayout)((Grid)parent.Parent).Children[0];
+            var AssetID = ((Label)childToTake.Children[0]).Text;
+            Console.WriteLine(AssetID);
+            await Navigation.PushAsync(new EditAsset(int.Parse(AssetID)));
         }
 
         private void btnMove_Clicked(object sender, EventArgs e)
         {
-            Console.WriteLine("Hello");
+            var button = (ImageButton)sender;
+            var parent = (StackLayout)button.Parent;
+            var childToTake = (StackLayout)((Grid)parent.Parent).Children[0];
+            var AssetID = ((Label)childToTake.Children[0]).Text;
+            Console.WriteLine(AssetID);
         }
 
         private void btnHistory_Clicked(object sender, EventArgs e)
         {
-            Console.WriteLine("Hello");
+            var button = (ImageButton)sender;
+            var parent = (StackLayout)button.Parent;
+            var childToTake = (StackLayout)((Grid)parent.Parent).Children[0];
+            var AssetID = ((Label)childToTake.Children[0]).Text;
+            Console.WriteLine(AssetID);
         }
 
         private void pDepartment_SelectedIndexChanged(object sender, EventArgs e)
@@ -214,5 +246,9 @@ namespace Kazan_Session1_Mobile_14_9
             FilterAssets();
         }
 
+        private async void btnAdd_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new EditAsset(0));
+        }
     }
 }

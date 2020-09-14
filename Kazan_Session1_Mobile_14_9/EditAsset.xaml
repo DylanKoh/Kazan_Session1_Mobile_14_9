@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Kazan_Session1_Mobile_14_9.EditAsset"
+             Title="Asset Information">
+    <ContentPage.Content>
+        <StackLayout Padding="10">
+            <Entry Placeholder="Asset Name" x:Name="entryAssetName"/>
+            <Grid Padding="5">
+                <Picker x:Name="pDepartment" Title="Department" SelectedIndexChanged="pDepartment_SelectedIndexChanged" FontSize="Small"  HeightRequest="60"/>
+                <Picker x:Name="pLocation" Title="Location" SelectedIndexChanged="pLocation_SelectedIndexChanged" FontSize="Small" Grid.Column="1" IsEnabled="False"/>
+                <Picker x:Name="pAssetGroup" Title="Asset Group" SelectedIndexChanged="pAssetGroup_SelectedIndexChanged" FontSize="Small" Grid.Row="1"/>
+                <Picker x:Name="pAccountable" Title="Accountable Party" FontSize="Small" Grid.Row="1" Grid.Column="1"/>
+                
+            </Grid>
+            <Editor x:Name="editorDescription" Placeholder="Asset Descripton"/>
+            <Label Text="Expired Warranty: "/>
+            <DatePicker x:Name="dpWarranty"/>
+            <Grid Padding="5">
+                <Label Text="Asset SN: " HorizontalOptions="EndAndExpand"/>
+                <Label x:Name="lblAssetSN" Grid.Column="1" HorizontalOptions="StartAndExpand"/>
+            </Grid>
+            <Grid Padding="5">
+                <Button Text="Submit" x:Name="btnSubmit" Clicked="btnSubmit_Clicked"/>
+                <Button Text="Cancel" x:Name="btnCancel" Clicked="btnCancel_Clicked" Grid.Column="1"/>
+            </Grid>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
