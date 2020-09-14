@@ -1,6 +1,4 @@
-﻿using System;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
+﻿using Xamarin.Forms;
 
 namespace Kazan_Session1_Mobile_14_9
 {
@@ -10,7 +8,7 @@ namespace Kazan_Session1_Mobile_14_9
         {
             InitializeComponent();
 
-            MainPage = new NavigationPage(new MainPage());
+            MainPage = new NavigationPage(new Main());
         }
 
         protected override void OnStart()
