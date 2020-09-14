@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Kazan_Session1_Mobile_14_9.MoveAsset"
+             Title="Asset Transfer">
+    <ContentPage.Content>
+        <StackLayout Padding="10">
+            <Label Text="Selected Assets"/>
+            <Grid Padding="5">
+                <Label Text="Asset Name: " VerticalOptions="EndAndExpand"/>
+                <Label Text="Current Department: " Grid.Column="1" VerticalOptions="EndAndExpand"/>
+                <Entry Placeholder="Asset Name" x:Name="entryAssetName" Grid.Row="1" IsEnabled="False"/>
+                <Entry Placeholder="Department" x:Name="entryDepartment" Grid.Row="1" Grid.Column="1" IsEnabled="False"/>
+                <Label Text="Asset SN: " VerticalOptions="EndAndExpand" Grid.Row="2" Grid.ColumnSpan="1"/>
+                <Entry x:Name="entryAssetSN" Placeholder="Asset SN" Grid.Row="3" Grid.ColumnSpan="1" IsEnabled="False"/>
+            </Grid>
+            <Label Text="Destination Department"/>
+            <Grid Padding="5">
+                <Picker x:Name="pDepartment" SelectedIndexChanged="pDepartment_SelectedIndexChanged" Title="Destination Department"/>
+                <Picker x:Name="pLocation" SelectedIndexChanged="pLocation_SelectedIndexChanged" Title="Destination Location" Grid.Column="1"/>
+                <Label Text="New Asset SN: " Grid.ColumnSpan="1" Grid.Row="1" VerticalOptions="EndAndExpand"/>
+                <Label Text="??/??/????" x:Name="lblAssetSN" Grid.Row="2" Grid.ColumnSpan="1"/>
+            </Grid>
+            <Grid Padding="5">
+                <Button Text="Submit" Clicked="btnSubmit_Clicked" x:Name="btnSubmit"/>
+                <Button Text="Cancel" x:Name="btnCancel" Clicked="btnCancel_Clicked" Grid.Column="1"/>
+            </Grid>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

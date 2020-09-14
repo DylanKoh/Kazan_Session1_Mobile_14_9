@@ -27,6 +27,7 @@ namespace Kazan_Session1_Mobile_14_9
             await LoadData();
             await LoadPickers();
             dpStart.Date = DateTime.Parse("1/1/1980");
+            dpEnd.Date = DateTime.Parse("1/1/2100");
         }
 
         protected override void LayoutChildren(double x, double y, double width, double height)
@@ -203,13 +204,14 @@ namespace Kazan_Session1_Mobile_14_9
             await Navigation.PushAsync(new EditAsset(int.Parse(AssetID)));
         }
 
-        private void btnMove_Clicked(object sender, EventArgs e)
+        private async void btnMove_Clicked(object sender, EventArgs e)
         {
             var button = (ImageButton)sender;
             var parent = (StackLayout)button.Parent;
             var childToTake = (StackLayout)((Grid)parent.Parent).Children[0];
             var AssetID = ((Label)childToTake.Children[0]).Text;
             Console.WriteLine(AssetID);
+            await Navigation.PushAsync(new MoveAsset(int.Parse(AssetID)));
         }
 
         private void btnHistory_Clicked(object sender, EventArgs e)
