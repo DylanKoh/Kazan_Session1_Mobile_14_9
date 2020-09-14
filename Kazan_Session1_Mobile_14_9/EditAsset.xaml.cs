@@ -255,6 +255,10 @@ namespace Kazan_Session1_Mobile_14_9
                         await DisplayAlert("Add Asset", "Created Asset!", "Ok");
                         await Navigation.PopAsync();
                     }
+                    else if (response == "\"Asset already exist in the location of choice!\"")
+                    {
+                        await DisplayAlert("Add Asset", "Asset already exist in the location of choice!", "Ok");
+                    }
                     else
                     {
                         await DisplayAlert("Add Asset", "Unable to create Asset! Please check and try again!", "Ok");
