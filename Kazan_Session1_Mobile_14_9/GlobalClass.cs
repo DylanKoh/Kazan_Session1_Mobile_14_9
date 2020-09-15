@@ -47,7 +47,7 @@ namespace Kazan_Session1_Mobile_14_9
 
         public class Location
         {
-            
+
             public long ID { get; set; }
             public string Name { get; set; }
         }
@@ -71,6 +71,16 @@ namespace Kazan_Session1_Mobile_14_9
             public long FromDepartmentLocationID { get; set; }
             public long ToDepartmentLocationID { get; set; }
 
+        }
+
+
+        public class CustomHistory
+        {
+            public DateTime TransferDate { get; set; }
+            public string OldDepartment { get; set; }
+            public string OldAssetSN { get; set; }
+            public string NewDepartment { get; set; }
+            public string NewAssetSN { get; set; }
         }
 
     }

@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Kazan_Session1_Mobile_14_9.AssetHistory"
+             Title="Transfer History">
+    <ContentPage.Content>
+        <StackLayout Padding="10">
+            <Label Text="No Transfer History!" FontSize="Header" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand"
+                   x:Name="lblNoHistory" IsVisible="False"/>
+            <ListView x:Name="lvHistory" HasUnevenRows="True">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <Grid Padding="5">
+                                <Label Text="Relocation Date:"/>
+                                <Label Text="{Binding TransferDate}" Grid.Column="1"/>
+                                <Label Text="{Binding OldDepartment}" Grid.Row="1"/>
+                                <Label Text="{Binding OldAssetSN}" Grid.Row="1" Grid.Column="1"/>
+                                <Label Text="{Binding NewDepartment}" Grid.Row="2"/>
+                                <Label Text="{Binding NewAssetSN}" Grid.Row="2" Grid.Column="1"/>
+                            </Grid>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
