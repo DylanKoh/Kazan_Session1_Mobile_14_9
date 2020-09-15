@@ -1,11 +1,14 @@
 ﻿using Newtonsoft.Json;
+using Plugin.FilePicker;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using static Kazan_Session1_Mobile_14_9.GlobalClass;
@@ -20,6 +23,7 @@ namespace Kazan_Session1_Mobile_14_9
         List<DepartmentLocation> _departmentLocationList;
         List<Location> _locationList;
         List<Employee> _employeeList;
+        List<AssetPhotoList> _assetPhotoList = new List<AssetPhotoList>();
         Asset _asset;
         long _assetID = 0;
         public EditAsset(long AssetID)
@@ -44,37 +48,41 @@ namespace Kazan_Session1_Mobile_14_9
 
         private async Task LoadPickers()
         {
-            pAccountable.Items.Clear();
-            pAssetGroup.Items.Clear();
-            pDepartment.Items.Clear();
-            pLocation.Items.Clear();
-            var client = new WebApi();
-            var assetGroupResponse = await client.PostAsync(null, "AssetGroups");
-            _assetGroupList = JsonConvert.DeserializeObject<List<AssetGroup>>(assetGroupResponse);
-            foreach (var item in _assetGroupList)
+            if (pAccountable.SelectedItem == null || pAssetGroup.SelectedItem == null || pDepartment.SelectedItem == null || pLocation.SelectedItem == null)
             {
-                pAssetGroup.Items.Add(item.Name);
+                pAccountable.Items.Clear();
+                pAssetGroup.Items.Clear();
+                pDepartment.Items.Clear();
+                pLocation.Items.Clear();
+                var client = new WebApi();
+                var assetGroupResponse = await client.PostAsync(null, "AssetGroups");
+                _assetGroupList = JsonConvert.DeserializeObject<List<AssetGroup>>(assetGroupResponse);
+                foreach (var item in _assetGroupList)
+                {
+                    pAssetGroup.Items.Add(item.Name);
+                }
+
+                var departmentResponse = await client.PostAsync(null, "Departments");
+                _departmentList = JsonConvert.DeserializeObject<List<Department>>(departmentResponse);
+                foreach (var item in _departmentList)
+                {
+                    pDepartment.Items.Add(item.Name);
+                }
+
+                var departmentLocationResponse = await client.PostAsync(null, "DepartmentLocations");
+                _departmentLocationList = JsonConvert.DeserializeObject<List<DepartmentLocation>>(departmentLocationResponse);
+
+                var locationResponse = await client.PostAsync(null, "Locations");
+                _locationList = JsonConvert.DeserializeObject<List<Location>>(locationResponse);
+
+                var employeeResponse = await client.PostAsync(null, "Employees");
+                _employeeList = JsonConvert.DeserializeObject<List<Employee>>(employeeResponse);
+                foreach (var item in _employeeList)
+                {
+                    pAccountable.Items.Add($"{item.FirstName} {item.LastName}");
+                }
             }
-
-            var departmentResponse = await client.PostAsync(null, "Departments");
-            _departmentList = JsonConvert.DeserializeObject<List<Department>>(departmentResponse);
-            foreach (var item in _departmentList)
-            {
-                pDepartment.Items.Add(item.Name);
-            }
-
-            var departmentLocationResponse = await client.PostAsync(null, "DepartmentLocations");
-            _departmentLocationList = JsonConvert.DeserializeObject<List<DepartmentLocation>>(departmentLocationResponse);
-
-            var locationResponse = await client.PostAsync(null, "Locations");
-            _locationList = JsonConvert.DeserializeObject<List<Location>>(locationResponse);
-
-            var employeeResponse = await client.PostAsync(null, "Employees");
-            _employeeList = JsonConvert.DeserializeObject<List<Employee>>(employeeResponse);
-            foreach (var item in _employeeList)
-            {
-                pAccountable.Items.Add($"{item.FirstName} {item.LastName}");
-            }
+            
         }
 
         private async Task LoadData()
@@ -103,6 +111,19 @@ namespace Kazan_Session1_Mobile_14_9
             pAccountable.SelectedItem = (from x in _employeeList
                                          where x.ID == _asset.EmployeeID
                                          select x.FirstName + " " + x.LastName).FirstOrDefault();
+            if (_assetPhotoList.Count == 0)
+            {
+                var assetPhotoResponse = await client.PostAsync(null, $"AssetPhotoes/GetPhotoAsset?AssetID={_asset.ID}");
+                var assetPhotoList = JsonConvert.DeserializeObject<List<AssetPhoto>>(assetPhotoResponse);
+                foreach (var item in assetPhotoList)
+                {
+                    var image = ImageSource.FromStream(() => new MemoryStream(item.AssetPhoto1));
+                    var getNumberOfPhotos = _assetPhotoList.Count();
+                    _assetPhotoList.Add(new AssetPhotoList() { AssetPhoto = image, PhotoName = $"Image {getNumberOfPhotos + 1}" });
+                }
+                lvPhotos.ItemsSource = _assetPhotoList;
+            }
+           
         }
 
         private void pDepartment_SelectedIndexChanged(object sender, EventArgs e)
@@ -129,7 +150,7 @@ namespace Kazan_Session1_Mobile_14_9
 
         private void pLocation_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (pAssetGroup.SelectedItem != null && pLocation.SelectedItem != null)
+            if (pAssetGroup.SelectedItem != null && pLocation.SelectedItem != null && _assetID == 0)
             {
                 CalculateAssetSN();
             }
@@ -164,12 +185,12 @@ namespace Kazan_Session1_Mobile_14_9
             }
             var newSN = $"{ddaa}/{nnnn}";
             lblAssetSN.Text = newSN;
-            
+
         }
 
         private void pAssetGroup_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (pDepartment.SelectedItem != null && pLocation.SelectedItem != null)
+            if (pDepartment.SelectedItem != null && pLocation.SelectedItem != null && _assetID == 0)
             {
                 CalculateAssetSN();
             }
@@ -204,7 +225,38 @@ namespace Kazan_Session1_Mobile_14_9
                     if (response == "\"Successfully edited Asset!\"")
                     {
                         await DisplayAlert("Edit Asset", "Successfully edited Asset!", "Ok");
-                        await Navigation.PopAsync();
+                        var boolCheck = true;
+                        foreach (var item in _assetPhotoList)
+                        {
+                            byte[] imageArray;
+                            var imageContent = await GetStreamFromImageSourceAsync((StreamImageSource)item.AssetPhoto);
+                            using (var memoryStream = new MemoryStream())
+                            {
+                                Stream stream = imageContent;
+                                stream.CopyTo(memoryStream);
+                                imageArray = memoryStream.ToArray();
+                            }
+                            var newAssetPhotos = new AssetPhoto()
+                            {
+                                AssetID = _asset.ID,
+                                AssetPhoto1 = imageArray
+                            };
+                            var jsonData1 = JsonConvert.SerializeObject(newAssetPhotos);
+                            var responsePhoto = await client.PostAsync(jsonData1, "AssetPhotoes/Create");
+                            if (responsePhoto != "\"Photo(s) saved successfully!\"")
+                            {
+                                boolCheck = false;
+                                break;
+                            }
+                        }
+                        if (boolCheck == false)
+                        {
+                            await DisplayAlert("Edit Asset", "There was an issue with adding photos! Please contact our administrator!", "Ok");
+                        }
+                        else
+                        {
+                            await Navigation.PopAsync();
+                        }
                     }
                     else
                     {
@@ -253,7 +305,40 @@ namespace Kazan_Session1_Mobile_14_9
                     if (response == "\"Created Asset!\"")
                     {
                         await DisplayAlert("Add Asset", "Created Asset!", "Ok");
-                        await Navigation.PopAsync();
+                        var boolCheck = true;
+                        var getAssetIDString = await client.PostAsync(null, $"Assets/GetAssetID?AssetSN={lblAssetSN.Text}");
+                        var assetID = long.Parse(JsonConvert.DeserializeObject<string>(getAssetIDString));
+                        foreach (var item in _assetPhotoList)
+                        {
+                            byte[] imageArray;
+                            var imageContent = await GetStreamFromImageSourceAsync((StreamImageSource)item.AssetPhoto);
+                            using (var memoryStream = new MemoryStream())
+                            {
+                                Stream stream = imageContent;
+                                stream.CopyTo(memoryStream);
+                                imageArray = memoryStream.ToArray();
+                            }
+                            var newAssetPhotos = new AssetPhoto()
+                            {
+                                AssetID = assetID,
+                                AssetPhoto1 = imageArray
+                            };
+                            var jsonData1 = JsonConvert.SerializeObject(newAssetPhotos);
+                            var responsePhoto = await client.PostAsync(jsonData1, " AssetPhotoes/Create");
+                            if (responsePhoto != "\"Photo(s) saved successfully!\"")
+                            {
+                                boolCheck = false;
+                                break;
+                            }
+                        }
+                        if (boolCheck == false)
+                        {
+                            await DisplayAlert("Add Asset", "There was an issue with adding photos! Please contact our administrator!", "Ok");
+                        }
+                        else
+                        {
+                            await Navigation.PopAsync();
+                        }
                     }
                     else if (response == "\"Asset already exist in the location of choice!\"")
                     {
@@ -265,12 +350,57 @@ namespace Kazan_Session1_Mobile_14_9
                     }
                 }
             }
-            
+
         }
 
         private async void btnCancel_Clicked(object sender, EventArgs e)
         {
             await Navigation.PopAsync();
         }
+
+        private async void btnCapture_Clicked(object sender, EventArgs e)
+        {
+            lvPhotos.ItemsSource = null;
+            var photo = await Plugin.Media.CrossMedia.Current.TakePhotoAsync(new Plugin.Media.Abstractions.StoreCameraMediaOptions() { });
+
+            if (photo != null)
+            {
+                var Image = ImageSource.FromStream(() => { return photo.GetStream(); });
+                var getNumberOfPhotos = _assetPhotoList.Count();
+                _assetPhotoList.Add(new AssetPhotoList() { AssetPhoto = Image, PhotoName = $"Image {getNumberOfPhotos + 1}" });
+            }
+            lvPhotos.ItemsSource = _assetPhotoList;
+
+
+
+        }
+
+
+        private async void btnBrowse_Clicked(object sender, EventArgs e)
+        {
+            lvPhotos.ItemsSource = null;
+            var file = await CrossFilePicker.Current.PickFile();
+
+            if (file != null)
+            {
+                var data = file.DataArray;
+                var image = ImageSource.FromStream(() => new MemoryStream(data));
+                var getNumberOfPhotos = _assetPhotoList.Count();
+                _assetPhotoList.Add(new AssetPhotoList() { AssetPhoto = image, PhotoName = $"Image {getNumberOfPhotos + 1}" });
+            }
+            lvPhotos.ItemsSource = _assetPhotoList;
+
+
+        }
+
+        private static async Task<Stream> GetStreamFromImageSourceAsync(StreamImageSource imageSource, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (imageSource.Stream != null)
+            {
+                return await imageSource.Stream(cancellationToken);
+            }
+            return null;
+        }
+
     }
 }

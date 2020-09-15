@@ -1,4 +1,5 @@
 ﻿using System;
+using Xamarin.Forms;
 
 namespace Kazan_Session1_Mobile_14_9
 {
@@ -83,5 +84,17 @@ namespace Kazan_Session1_Mobile_14_9
             public string NewAssetSN { get; set; }
         }
 
+        public class AssetPhoto
+        {
+            public long ID { get; set; }
+            public long AssetID { get; set; }
+            public byte[] AssetPhoto1 { get; set; }
+        }
+
+        public class AssetPhotoList
+        {
+            public ImageSource AssetPhoto { get; set; }
+            public string PhotoName { get; set; }
+        }
     }
 }
